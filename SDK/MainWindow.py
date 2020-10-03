@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QSlider
 from PyQt5.QtCore import pyqtSignal, QThread, Qt
 from PyQt5.QtGui import QKeySequence, QPalette, QColor
 import time, pyautogui, keyboard, os, sys
+import shelve
+
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -26,6 +28,7 @@ class MainWindow(QMainWindow):
         self.setFixedSize(271, 410)
         self.setWindowTitle("League Tool")
         self.setWindowIcon(QtGui.QIcon(resource_path("imgs/icon.png")))
+        self.persistance = shelve.open("settings", writeback=True)
         self.SetupUI()
 
     def SetupUI(self):
@@ -103,15 +106,22 @@ class MainWindow(QMainWindow):
         self.aaCheckBox.stateChanged.connect(self.aaCheckBoxChanged)
         self.instaCheckBox.stateChanged.connect(self.instaCheckBoxChanged)
         self.nonInstaCheckBox.stateChanged.connect(self.nonInstaCheckBoxChanged)
+        self.roleTextBox.textChanged.connect(self.roleTextChanged)
+        self.championTextBox.textChanged.connect(self.championTextChanged)
         self.clearLogs.clicked.connect(lambda: self.loggingBox.clear())
 
         # Keyboard events
         keyboard.on_press(self.HookKeyboard)
 
+        # Persistence
+        self.setupPersistance()
+
         # UI related
         self.retranslateUI()
         QtCore.QMetaObject.connectSlotsByName(self)
-
+    
+    def closeEvent(self, event):
+        self.persistance.close()
 
     def retranslateUI(self):
         _translate = QtCore.QCoreApplication.translate
@@ -125,8 +135,36 @@ class MainWindow(QMainWindow):
         self.championLabel.setText(_translate("MainWindow", "Champion:"))
         self.clearLogs.setText(_translate("MainWindow", "Clear Logs"))
 
+    def setupPersistance(self):
+        if('roleTextBox' not in self.persistance):
+            self.persistance['roleTextBox'] = ""
+        self.roleTextBox.setText(self.persistance['roleTextBox'])
+
+        if('championTextBox' not in self.persistance):
+            self.persistance['championTextBox'] = ""
+        self.championTextBox.setText(self.persistance['championTextBox'])
+
+        if('aaCheckBox' not in self.persistance):
+            self.persistance['aaCheckBox'] = True
+        self.aaCheckBox.setChecked(self.persistance['aaCheckBox'])
+        
+        if('arCheckBox' not in self.persistance):
+            self.persistance['arCheckBox'] = False
+        self.arCheckBox.setChecked(self.persistance['arCheckBox'])
+        
+        if('instaCheckBox' not in self.persistance):
+            self.persistance['instaCheckBox'] = False
+        self.instaCheckBox.setChecked(self.persistance['instaCheckBox'])
+
+        if('nonInstaCheckBox' not in self.persistance):
+            self.persistance['nonInstaCheckBox'] = False
+        self.nonInstaCheckBox.setChecked(self.persistance['nonInstaCheckBox'])
+        
+        self.persistance.sync()
+
     def arCheckBoxChanged(self, state):
-        if state == QtCore.Qt.Checked:
+        checked = state == QtCore.Qt.Checked
+        if checked:
             self.roleCallThread = autoRoleCall(role=self.roleTextBox.text())
             self.roleCallThread.start()
             self.loggingBox.append(f"Role-Call thread started with string: \"{self.roleTextBox.text()}\"")
@@ -137,8 +175,12 @@ class MainWindow(QMainWindow):
             self.roleCallThread.stop()
             self.roleCallThread.quit()
 
+        self.persistance['arCheckBox'] = checked
+        self.persistance.sync()
+
     def aaCheckBoxChanged(self, state):
-        if state == QtCore.Qt.Checked:
+        checked = state == QtCore.Qt.Checked
+        if checked:
             self.autoAcceptThread = autoAccept()
             self.autoAcceptThread.start()
             self.loggingBox.append("Auto-Accept thread started.")
@@ -149,8 +191,12 @@ class MainWindow(QMainWindow):
             self.autoAcceptThread.stop()
             self.autoAcceptThread.quit()
 
+        self.persistance['aaCheckBox'] = checked
+        self.persistance.sync()
+
     def instaCheckBoxChanged(self, state):
-        if state == QtCore.Qt.Checked:
+        checked = state == QtCore.Qt.Checked
+        if checked:
             if self.nonInstaCheckBox.isChecked():
                 self.nonInstaCheckBox.setChecked(False)
             
@@ -167,9 +213,13 @@ class MainWindow(QMainWindow):
             self.loggingBox.append("Insta-Lock thread stopped.")
             self.instaLockThread.stop()
             self.instaLockThread.quit()
+            
+        self.persistance['instaCheckBox'] = checked
+        self.persistance.sync()
 
     def nonInstaCheckBoxChanged(self, state):
-        if state == QtCore.Qt.Checked:
+        checked = state == QtCore.Qt.Checked
+        if checked:
             if self.instaCheckBox.isChecked():
                 self.instaCheckBox.setChecked(False)
 
@@ -186,6 +236,17 @@ class MainWindow(QMainWindow):
             self.loggingBox.append("Non Insta-Lock thread stopped.")
             self.nonInstaLockThread.stop()
             self.nonInstaLockThread.quit()
+            
+        self.persistance['nonInstaCheckBox'] = checked
+        self.persistance.sync()
+
+    def roleTextChanged(self, text):            
+        self.persistance['roleTextBox'] = text
+        self.persistance.sync()
+
+    def championTextChanged(self, text):            
+        self.persistance['championTextBox'] = text
+        self.persistance.sync()
 
     def HookKeyboard(self, key):
         if key.name == "f1":
