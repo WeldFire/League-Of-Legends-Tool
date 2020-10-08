@@ -11,8 +11,11 @@ class autoAccept(QThread):
         while self.continue_run:
             autoAcceptBox = pyautogui.locateOnScreen(resource_path("imgs/accept.png"), confidence = 0.9)
             if autoAcceptBox is not None:
-                pyautogui.moveTo(autoAcceptBox)
-                # pyautogui.click()
+                _location_ = pyautogui.center(autoAcceptBox)
+                pyautogui.moveTo(_location_)
+                pyautogui.click()
+                
+                pyautogui.moveTo(_location_.x, _location_.y-50)
                 self.autoAcceptAppendText.emit("Clicked accept...")
                 self.autoAcceptEnd.emit()
             time.sleep(1)

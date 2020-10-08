@@ -185,7 +185,6 @@ class MainWindow(QMainWindow):
             self.autoAcceptThread.start()
             self.loggingBox.append("Auto-Accept thread started.")
             self.autoAcceptThread.autoAcceptAppendText.connect(self.loggingBox.append)
-            self.autoAcceptThread.autoAcceptEnd.connect(lambda: self.aaCheckBox.setChecked(False))
         else:
             self.loggingBox.append("Auto-Accept thread stopped.")
             self.autoAcceptThread.stop()
