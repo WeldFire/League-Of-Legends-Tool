@@ -1,5 +1,8 @@
 import SDK.MainWindow as sdk
+from tendo import singleton
 import traceback
+
+me = singleton.SingleInstance()
 
 def excepthook(exc_type, exc_value, exc_tb):
     tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
