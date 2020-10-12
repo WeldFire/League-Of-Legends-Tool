@@ -23,9 +23,10 @@ from SDK.Instalock import *
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+        self.width = 300
 
         self.setObjectName("MainWindow")
-        self.setFixedSize(271, 410)
+        self.setFixedSize(self.width, 410)
         self.setWindowTitle("League Tool")
         self.setWindowIcon(QtGui.QIcon(resource_path("imgs/icon.png")))
         self.persistance = shelve.open("settings", writeback=True)
@@ -38,7 +39,7 @@ class MainWindow(QMainWindow):
 
         # Client Label
         self.clientLabel = QtWidgets.QLabel(self.centralWidget)
-        self.clientLabel.setGeometry(QtCore.QRect(10, 10, 251, 21))
+        self.clientLabel.setGeometry(QtCore.QRect(10, 10, self.width-20, 21))
         self.clientLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.clientLabel.setObjectName("clientLabel")
 
@@ -54,12 +55,12 @@ class MainWindow(QMainWindow):
 
         # Instalock Select
         self.instaCheckBox = QtWidgets.QCheckBox(self.centralWidget)
-        self.instaCheckBox.setGeometry(QtCore.QRect(150, 30, 111, 31))
+        self.instaCheckBox.setGeometry(QtCore.QRect(self.width/2, 30, 111, 31))
         self.instaCheckBox.setObjectName("instaCheckBox")
 
         # Non-Instalock Select
         self.nonInstaCheckBox = QtWidgets.QCheckBox(self.centralWidget)
-        self.nonInstaCheckBox.setGeometry(QtCore.QRect(150, 60, 111, 31))
+        self.nonInstaCheckBox.setGeometry(QtCore.QRect(self.width/2, 60, 111, 31))
         self.nonInstaCheckBox.setObjectName("nonInstaCheckBox")
 
         # Pick-A-Role Label
@@ -69,7 +70,7 @@ class MainWindow(QMainWindow):
 
         # Pick-A-Role TextBox
         self.roleTextBox = QtWidgets.QLineEdit(self.centralWidget)
-        self.roleTextBox.setGeometry(QtCore.QRect(10, 130, 251, 20))
+        self.roleTextBox.setGeometry(QtCore.QRect(10, 130, self.width-20, 20))
         self.roleTextBox.setPlaceholderText("Set text first before checking the box!")
         self.roleTextBox.setObjectName("roleTextBox")
 
@@ -80,7 +81,7 @@ class MainWindow(QMainWindow):
 
         # Ban-A-Champion TextBox
         self.banChampionTextBox = QtWidgets.QLineEdit(self.centralWidget)
-        self.banChampionTextBox.setGeometry(QtCore.QRect(10, 180, 251, 20))
+        self.banChampionTextBox.setGeometry(QtCore.QRect(10, 180, self.width-20, 20))
         self.banChampionTextBox.setPlaceholderText("Set text first before checking the box!")
         self.banChampionTextBox.setObjectName("banChampionTextBox")
 
@@ -91,24 +92,24 @@ class MainWindow(QMainWindow):
 
         # Pick-A-Champion TextBox
         self.championTextBox = QtWidgets.QLineEdit(self.centralWidget)
-        self.championTextBox.setGeometry(QtCore.QRect(10, 230, 251, 20))
+        self.championTextBox.setGeometry(QtCore.QRect(10, 230, self.width-20, 20))
         self.championTextBox.setPlaceholderText("Set text first before checking the box!")
         self.championTextBox.setObjectName("championTextBox")
 
         # Logging
         self.loggingBox = QtWidgets.QTextBrowser(self.centralWidget)
-        self.loggingBox.setGeometry(QtCore.QRect(10, 270, 251, 131))
+        self.loggingBox.setGeometry(QtCore.QRect(10, 270, self.width-20, 131))
         self.loggingBox.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
         self.loggingBox.setObjectName("loggingBox")
 
         # Clear Logs Button
         self.clearLogs = QtWidgets.QPushButton(self.centralWidget)
-        self.clearLogs.setGeometry(QtCore.QRect(10, 410, 251, 23))
+        self.clearLogs.setGeometry(QtCore.QRect(10, 410, self.width-20, 23))
         self.clearLogs.setObjectName("clearLogs")
 
         # ForceStop Text
         self.forceStopText = QtWidgets.QLabel(self.centralWidget)
-        self.forceStopText.setGeometry(QtCore.QRect(80, 90, 111, 31))
+        self.forceStopText.setGeometry(QtCore.QRect((self.width/2)-55, 90, 111, 31))
         self.forceStopText.setAlignment(QtCore.Qt.AlignCenter)
         self.forceStopText.setObjectName("forceStopText")
 
