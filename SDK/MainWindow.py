@@ -73,26 +73,37 @@ class MainWindow(QMainWindow):
         self.roleTextBox.setPlaceholderText("Set text first before checking the box!")
         self.roleTextBox.setObjectName("roleTextBox")
 
+        # Ban-A-Champion Label
+        self.banChampionLabel = QtWidgets.QLabel(self.centralWidget)
+        self.banChampionLabel.setGeometry(QtCore.QRect(10, 160, 200, 13))
+        self.banChampionLabel.setObjectName("banChampionLabel")
+
+        # Ban-A-Champion TextBox
+        self.banChampionTextBox = QtWidgets.QLineEdit(self.centralWidget)
+        self.banChampionTextBox.setGeometry(QtCore.QRect(10, 180, 251, 20))
+        self.banChampionTextBox.setPlaceholderText("Set text first before checking the box!")
+        self.banChampionTextBox.setObjectName("banChampionTextBox")
+
         # Pick-A-Champion Label
         self.championLabel = QtWidgets.QLabel(self.centralWidget)
-        self.championLabel.setGeometry(QtCore.QRect(10, 160, 60, 13))
+        self.championLabel.setGeometry(QtCore.QRect(10, 210, 60, 13))
         self.championLabel.setObjectName("championLabel")
 
         # Pick-A-Champion TextBox
         self.championTextBox = QtWidgets.QLineEdit(self.centralWidget)
-        self.championTextBox.setGeometry(QtCore.QRect(10, 180, 251, 20))
+        self.championTextBox.setGeometry(QtCore.QRect(10, 230, 251, 20))
         self.championTextBox.setPlaceholderText("Set text first before checking the box!")
         self.championTextBox.setObjectName("championTextBox")
 
         # Logging
         self.loggingBox = QtWidgets.QTextBrowser(self.centralWidget)
-        self.loggingBox.setGeometry(QtCore.QRect(10, 220, 251, 131))
+        self.loggingBox.setGeometry(QtCore.QRect(10, 270, 251, 131))
         self.loggingBox.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
         self.loggingBox.setObjectName("loggingBox")
 
         # Clear Logs Button
         self.clearLogs = QtWidgets.QPushButton(self.centralWidget)
-        self.clearLogs.setGeometry(QtCore.QRect(10, 360, 251, 23))
+        self.clearLogs.setGeometry(QtCore.QRect(10, 410, 251, 23))
         self.clearLogs.setObjectName("clearLogs")
 
         # ForceStop Text
@@ -107,6 +118,7 @@ class MainWindow(QMainWindow):
         self.instaCheckBox.stateChanged.connect(self.instaCheckBoxChanged)
         self.nonInstaCheckBox.stateChanged.connect(self.nonInstaCheckBoxChanged)
         self.roleTextBox.textChanged.connect(self.roleTextChanged)
+        self.banChampionTextBox.textChanged.connect(self.banChampionTextChanged)
         self.championTextBox.textChanged.connect(self.championTextChanged)
         self.clearLogs.clicked.connect(lambda: self.loggingBox.clear())
 
@@ -132,6 +144,7 @@ class MainWindow(QMainWindow):
         self.nonInstaCheckBox.setText(_translate("MainWindow", "Non Insta-Lock"))
         self.forceStopText.setText(_translate("MainWindow", "F1 to force stop!"))
         self.roleLabel.setText(_translate("MainWindow", "Role:"))
+        self.banChampionLabel.setText(_translate("MainWindow", "Ban Champion:"))
         self.championLabel.setText(_translate("MainWindow", "Champion:"))
         self.clearLogs.setText(_translate("MainWindow", "Clear Logs"))
 
@@ -139,6 +152,10 @@ class MainWindow(QMainWindow):
         if('roleTextBox' not in self.persistance):
             self.persistance['roleTextBox'] = ""
         self.roleTextBox.setText(self.persistance['roleTextBox'])
+
+        if('banChampionTextBox' not in self.persistance):
+            self.persistance['banChampionTextBox'] = ""
+        self.banChampionTextBox.setText(self.persistance['banChampionTextBox'])
 
         if('championTextBox' not in self.persistance):
             self.persistance['championTextBox'] = ""
@@ -200,9 +217,9 @@ class MainWindow(QMainWindow):
                 self.nonInstaCheckBox.setChecked(False)
             
             if self.arCheckBox.isChecked():
-                self.instaLockThread = instaLock(roleCall = True, instaLock = True, champion = self.championTextBox.text())
+                self.instaLockThread = instaLock(roleCall = True, instaLock = True, champion = self.championTextBox.text(), banChampion = self.banChampionTextBox.text())
             else:
-                self.instaLockThread = instaLock(roleCall = False, instaLock = True, champion = self.championTextBox.text())
+                self.instaLockThread = instaLock(roleCall = False, instaLock = True, champion = self.championTextBox.text(), banChampion = self.banChampionTextBox.text())
 
             self.instaLockThread.start()
             self.loggingBox.append(f"Insta-Lock thread started with string: \"{self.championTextBox.text()}\"")
@@ -223,9 +240,9 @@ class MainWindow(QMainWindow):
                 self.instaCheckBox.setChecked(False)
 
             if self.arCheckBox.isChecked():
-                self.nonInstaLockThread = instaLock(roleCall = True, instaLock = False, champion = self.championTextBox.text())
+                self.nonInstaLockThread = instaLock(roleCall = True, instaLock = False, champion = self.championTextBox.text(), banChampion = self.banChampionTextBox.text())
             else:
-                self.nonInstaLockThread = instaLock(roleCall = False, instaLock = False, champion = self.championTextBox.text())
+                self.nonInstaLockThread = instaLock(roleCall = False, instaLock = False, champion = self.championTextBox.text(), banChampion = self.banChampionTextBox.text())
 
             self.nonInstaLockThread.start()
             self.loggingBox.append(f"Non Insta-Lock thread started with string: \"{self.championTextBox.text()}\"")
@@ -241,6 +258,10 @@ class MainWindow(QMainWindow):
 
     def roleTextChanged(self, text):            
         self.persistance['roleTextBox'] = text
+        self.persistance.sync()
+
+    def banChampionTextChanged(self, text):            
+        self.persistance['banChampionTextBox'] = text
         self.persistance.sync()
 
     def championTextChanged(self, text):            
