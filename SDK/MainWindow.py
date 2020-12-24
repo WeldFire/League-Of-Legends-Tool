@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         # Pick-A-Role TextBox
         self.roleTextBox = QtWidgets.QLineEdit(self.centralWidget)
         self.roleTextBox.setGeometry(QtCore.QRect(10, 130, self.width-20, 20))
-        self.roleTextBox.setPlaceholderText("Set text first before checking the box!")
+        self.roleTextBox.setPlaceholderText("Text that you would like to say upon loading into a lobby")
         self.roleTextBox.setObjectName("roleTextBox")
 
         # Ban-A-Champion Label
@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
         # Ban-A-Champion TextBox
         self.banChampionTextBox = QtWidgets.QLineEdit(self.centralWidget)
         self.banChampionTextBox.setGeometry(QtCore.QRect(10, 180, self.width-20, 20))
-        self.banChampionTextBox.setPlaceholderText("Set text first before checking the box!")
+        self.banChampionTextBox.setPlaceholderText("Champion that you would like to ban")
         self.banChampionTextBox.setObjectName("banChampionTextBox")
 
         # Pick-A-Champion Label
@@ -93,7 +93,7 @@ class MainWindow(QMainWindow):
         # Pick-A-Champion TextBox
         self.championTextBox = QtWidgets.QLineEdit(self.centralWidget)
         self.championTextBox.setGeometry(QtCore.QRect(10, 230, self.width-20, 20))
-        self.championTextBox.setPlaceholderText("Set text first before checking the box!")
+        self.championTextBox.setPlaceholderText("Champion that you would like to try and play")
         self.championTextBox.setObjectName("championTextBox")
 
         # Logging
