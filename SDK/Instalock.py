@@ -48,8 +48,11 @@ class instaLock(QThread):
                 while True:
                     lockIn = pyautogui.locateOnScreen(resource_path("imgs/ban.png"), confidence = 0.9)
                     if lockIn is not None:
-                        pyautogui.moveTo(lockIn)
+                        _location_ = pyautogui.center(lockIn)
+                        pyautogui.moveTo(_location_)
                         pyautogui.click()
+                        
+                        pyautogui.moveTo(_location_.x, _location_.y-50)
                         self.instaLockAppendText.emit(f"Selected and banned \"{self.banChampion}\"...")
                         break
 

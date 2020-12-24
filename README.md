@@ -35,3 +35,6 @@ Note:
 1. Download the repo
 2. `pip install -r requirements.txt`
 3. `py main.py`
+
+## How to export to Windows
+`pyinstaller -F --add-data "imgs;imgs" main.py`

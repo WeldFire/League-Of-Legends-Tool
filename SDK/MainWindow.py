@@ -2,7 +2,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QSlider
 from PyQt5.QtCore import pyqtSignal, QThread, Qt
 from PyQt5.QtGui import QKeySequence, QPalette, QColor
-import time, pyautogui, keyboard, os, sys
+import time, pyautogui, keyboard, os, sys, threading
 import shelve
 
 
@@ -123,6 +123,11 @@ class MainWindow(QMainWindow):
         self.championTextBox.textChanged.connect(self.championTextChanged)
         self.clearLogs.clicked.connect(lambda: self.loggingBox.clear())
 
+        # Timers
+        self.roleUpdateThread = "unset"
+        self.banUpdateThread = "unset"
+        self.champUpdateThread = "unset"
+
         # Keyboard events
         keyboard.on_press(self.HookKeyboard)
 
@@ -187,7 +192,8 @@ class MainWindow(QMainWindow):
             self.roleCallThread.start()
             self.loggingBox.append(f"Role-Call thread started with string: \"{self.roleTextBox.text()}\"")
             self.roleCallThread.roleCallAppendText.connect(self.loggingBox.append)
-            self.roleCallThread.roleCallEnd.connect(lambda: self.arCheckBox.setChecked(False))
+            # For now, don't automatically disable
+            # self.roleCallThread.roleCallEnd.connect(lambda: self.arCheckBox.setChecked(False))
         else:
             self.loggingBox.append("Role-Call thread stopped.")
             self.roleCallThread.stop()
@@ -225,7 +231,8 @@ class MainWindow(QMainWindow):
             self.instaLockThread.start()
             self.loggingBox.append(f"Insta-Lock thread started with string: \"{self.championTextBox.text()}\"")
             self.instaLockThread.instaLockAppendText.connect(self.loggingBox.append)
-            self.instaLockThread.instaLockEnd.connect(lambda: self.instaCheckBox.setChecked(False))
+            # For now, don't automatically disable
+            # self.instaLockThread.instaLockEnd.connect(lambda: self.instaCheckBox.setChecked(False))
         else:
             self.loggingBox.append("Insta-Lock thread stopped.")
             self.instaLockThread.stop()
@@ -248,7 +255,8 @@ class MainWindow(QMainWindow):
             self.nonInstaLockThread.start()
             self.loggingBox.append(f"Non Insta-Lock thread started with string: \"{self.championTextBox.text()}\"")
             self.nonInstaLockThread.instaLockAppendText.connect(self.loggingBox.append)
-            self.nonInstaLockThread.instaLockEnd.connect(lambda: self.nonInstaCheckBox.setChecked(False))
+            # For now, don't automatically disable
+            # self.nonInstaLockThread.instaLockEnd.connect(lambda: self.nonInstaCheckBox.setChecked(False))
         else:
             self.loggingBox.append("Non Insta-Lock thread stopped.")
             self.nonInstaLockThread.stop()
@@ -257,17 +265,54 @@ class MainWindow(QMainWindow):
         self.persistance['nonInstaCheckBox'] = checked
         self.persistance.sync()
 
+
     def roleTextChanged(self, text):            
         self.persistance['roleTextBox'] = text
         self.persistance.sync()
+        if(self.roleUpdateThread != "unset"):
+            if(not isinstance(self.roleUpdateThread, str)):
+                self.roleUpdateThread.cancel()
+            self.roleUpdateThread = threading.Timer(3.0, self.delayedRoleUpdate)
+            self.roleUpdateThread.start()
+        else:
+            self.roleUpdateThread = "set"
+    
+    def delayedRoleUpdate(self):
+        self.loggingBox.append("Restarting service due to text change")
+        self.arCheckBoxChanged(None)
+        self.arCheckBoxChanged(QtCore.Qt.Checked)
 
     def banChampionTextChanged(self, text):            
         self.persistance['banChampionTextBox'] = text
         self.persistance.sync()
+        if(self.banUpdateThread != "unset"):
+            if(not isinstance(self.banUpdateThread, str)):
+                self.banUpdateThread.cancel()
+            self.banUpdateThread = threading.Timer(3.0, self.restartLockServices)
+            self.banUpdateThread.start()
+        else:
+            self.banUpdateThread = "set"
 
     def championTextChanged(self, text):            
         self.persistance['championTextBox'] = text
         self.persistance.sync()
+        if(self.champUpdateThread != "unset"):
+            if(not isinstance(self.champUpdateThread, str)):
+                self.champUpdateThread.cancel()
+            self.champUpdateThread = threading.Timer(3.0, self.restartLockServices)
+            self.champUpdateThread.start()
+        else:
+            self.champUpdateThread = "set"
+    
+    def restartLockServices(self):
+        self.loggingBox.append("Restarting service due to text change")
+        if(self.nonInstaCheckBox.isChecked()):
+            self.nonInstaCheckBoxChanged(None)
+            self.nonInstaCheckBoxChanged(QtCore.Qt.Checked)
+
+        if(self.instaCheckBox.isChecked()):
+            self.instaCheckBoxChanged(None)
+            self.instaCheckBoxChanged(QtCore.Qt.Checked)
 
     def HookKeyboard(self, key):
         if key.name == "f1":

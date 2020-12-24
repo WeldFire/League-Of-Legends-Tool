@@ -1,2 +1,5 @@
 settings*
 *.pyc
+build/
+dist/
+*.spec
