@@ -124,9 +124,8 @@ class MainWindow(QMainWindow):
         self.clearLogs.clicked.connect(lambda: self.loggingBox.clear())
 
         # Timers
-        self.roleUpdateThread = "unset"
-        self.banUpdateThread = "unset"
-        self.champUpdateThread = "unset"
+        self.ignoredScheduleServiceRefreshes = 0
+        self.scheduledServiceRefreshThread = "unset"
 
         # Keyboard events
         keyboard.on_press(self.HookKeyboard)
@@ -269,43 +268,34 @@ class MainWindow(QMainWindow):
     def roleTextChanged(self, text):            
         self.persistance['roleTextBox'] = text
         self.persistance.sync()
-        if(self.roleUpdateThread != "unset"):
-            if(not isinstance(self.roleUpdateThread, str)):
-                self.roleUpdateThread.cancel()
-            self.roleUpdateThread = threading.Timer(3.0, self.delayedRoleUpdate)
-            self.roleUpdateThread.start()
-        else:
-            self.roleUpdateThread = "set"
+        self.scheduleServiceRefresh()
     
-    def delayedRoleUpdate(self):
-        self.loggingBox.append("Restarting service due to text change")
-        self.arCheckBoxChanged(None)
-        self.arCheckBoxChanged(QtCore.Qt.Checked)
-
     def banChampionTextChanged(self, text):            
         self.persistance['banChampionTextBox'] = text
         self.persistance.sync()
-        if(self.banUpdateThread != "unset"):
-            if(not isinstance(self.banUpdateThread, str)):
-                self.banUpdateThread.cancel()
-            self.banUpdateThread = threading.Timer(3.0, self.restartLockServices)
-            self.banUpdateThread.start()
-        else:
-            self.banUpdateThread = "set"
+        self.scheduleServiceRefresh()
 
     def championTextChanged(self, text):            
         self.persistance['championTextBox'] = text
         self.persistance.sync()
-        if(self.champUpdateThread != "unset"):
-            if(not isinstance(self.champUpdateThread, str)):
-                self.champUpdateThread.cancel()
-            self.champUpdateThread = threading.Timer(3.0, self.restartLockServices)
-            self.champUpdateThread.start()
-        else:
-            self.champUpdateThread = "set"
+        self.scheduleServiceRefresh()
     
+    def scheduleServiceRefresh(self):
+        if(self.ignoredScheduleServiceRefreshes > 2):
+            if(not isinstance(self.scheduledServiceRefreshThread, str)):
+                self.scheduledServiceRefreshThread.stop()
+            self.scheduledServiceRefreshThread = QtCore.QTimer()
+            self.scheduledServiceRefreshThread.setInterval(3000)
+            self.scheduledServiceRefreshThread.timeout.connect(self.restartLockServices)
+            self.scheduledServiceRefreshThread.start()
+        else:
+            self.ignoredScheduleServiceRefreshes += 1
+
     def restartLockServices(self):
-        self.loggingBox.append("Restarting service due to text change")
+        if(self.arCheckBox.isChecked()):    
+            self.arCheckBoxChanged(None)
+            self.arCheckBoxChanged(QtCore.Qt.Checked)
+
         if(self.nonInstaCheckBox.isChecked()):
             self.nonInstaCheckBoxChanged(None)
             self.nonInstaCheckBoxChanged(QtCore.Qt.Checked)
@@ -313,6 +303,9 @@ class MainWindow(QMainWindow):
         if(self.instaCheckBox.isChecked()):
             self.instaCheckBoxChanged(None)
             self.instaCheckBoxChanged(QtCore.Qt.Checked)
+
+        self.scheduledServiceRefreshThread.stop()
+        self.loggingBox.append("Service restarted to text changes")
 
     def HookKeyboard(self, key):
         if key.name == "f1":
