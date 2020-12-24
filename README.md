@@ -37,4 +37,4 @@ Note:
 3. `py main.py`
 
 ## How to export to Windows
-`pyinstaller -F --add-data "imgs;imgs" main.py`
+`pyinstaller -F --add-data "imgs;imgs" --name "LeagueTool" main.py`

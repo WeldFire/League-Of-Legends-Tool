@@ -1,5 +1,6 @@
 settings*
 *.pyc
 build/
-dist/
+dist/*
+!dist/LeagueTool.exe
 *.spec
